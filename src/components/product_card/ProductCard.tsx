@@ -9,92 +9,104 @@ const ProductCard = ({ product }: PropsTypes) => {
 
   const [loading, setLoading] = useState(false)
   const baseUrl = import.meta.env.DEV ? import.meta.env.VITE_STORE_BASE_URL_DEV : import.meta.env.VITE_STORE_BASE_URL_DEV
+  const ck = import.meta.env.DEV ? import.meta.env.VITE_WOO_CONSUMER_KEY : import.meta.env.VITE_WOO_CONSUMER_KEY
+  const cs = import.meta.env.DEV ? import.meta.env.VITE_WOO_SECRET_KEY : import.meta.env.VITE_WOO_SECRET_KEY
+  const apiUrl = import.meta.env.DEV ? "http://localhost:8080/api/new-order" : "https://onprintpos.diegoui.com.ar/api/new-order"
 
 
-  const handleAdd = (id: Product["id"]) => {
+  const handleAdd = async (id: Product["id"]) => {
     console.log(id)
 
     setLoading(true)
 
     //CREATE WOO ORDER
-
     const url = `${baseUrl}orders`
+    const auth = btoa(`${ck}:${cs}`)
 
     const data = {
-        payment_method: 'bacs',
-        payment_method_title: 'Direct Bank Transfer',
-        set_paid: true,
-        billing: {
-            first_name: 'John',
-            last_name: 'Doe',
-            address_1: '969 Market',
-            address_2: '',
-            city: 'San Francisco',
-            state: 'CA',
-            postcode: '94103',
-            country: 'US',
-            email: 'john.doe@example.com',
-            phone: '(555) 555-5555',
+      payment_method: 'bacs',
+      payment_method_title: 'Direct Bank Transfer',
+      set_paid: true,
+      billing: {
+        first_name: 'John',
+        last_name: 'Doe',
+        address_1: '969 Market',
+        address_2: '',
+        city: 'San Francisco',
+        state: 'CA',
+        postcode: '94103',
+        country: 'US',
+        email: 'john.doe@example.com',
+        phone: '(555) 555-5555',
+      },
+      shipping: {
+        first_name: 'Takeaway',
+        last_name: 'Doe',
+        address_1: '969 Market',
+        address_2: '',
+        city: 'San Francisco',
+        state: 'CA',
+        postcode: '94103',
+        country: 'US',
+      },
+      line_items: [
+        {
+          product_id: id,
+          quantity: 1,
         },
-        shipping: {
-            first_name: 'Takeaway',
-            last_name: 'Doe',
-            address_1: '969 Market',
-            address_2: '',
-            city: 'San Francisco',
-            state: 'CA',
-            postcode: '94103',
-            country: 'US',
+      ],
+      shipping_lines: [
+        {
+          method_id: 'flat_rate',
+          method_title: 'Flat Rate',
+          total: '10.00',
         },
-        line_items: [
-            {
-                product_id: id,
-                quantity: 1,
-            },
-        ],
-        shipping_lines: [
-            {
-                method_id: 'flat_rate',
-                method_title: 'Flat Rate',
-                total: '10.00',
-            },
-        ],
+      ],
     };
 
-    const auth = btoa(`ck_b8d76a1632102fa3b8207870efc42c64fd1c7b90:cs_5f71cf1f6eca0f63951d91771f4d295a67cbe40e`)
+    try {
 
-    fetch(url, {
+      const wooResponse = await fetch(url, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Basic ${auth}`,
+          'Content-Type': 'application/json',
+          Authorization: `Basic ${auth}`,
         },
         body: JSON.stringify(data),
-    })
-        .then((response) => response.json())
-        .then((result) => {
-            console.log('Response:', result);
+      })
 
-            fetch("https://onprintpos.diegoui.com.ar/api/new-order")
-            .then(res => {
-              console.log("Success")
-              console.log(res)
-            })
-            .catch(err => console.log(err))
+      const result = await wooResponse.json()
+
+      console.log("WOO REPSPONE....", result)
+
+      const apiPostData = {
+        products: [
+          { id: 1, name: "Product 1", price: 200 },
+          { id: 2, name: "Product 2", price: 220 },
+          { id: 3, name: "Product 3", price: 230 },
+        ]
+      }
+
+      const apiPostOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(apiPostData)
+      }
+
+      const response = await fetch(apiUrl, apiPostOptions)
+
+      console.log("API POST RESULT....", response)
 
 
-            // fetch("http://localhost:8080/api/new-order")
-            //     .then(res => console.log(res))
-            //     .catch(err => console.log(err))
+    } catch (err) {
 
+      console.error(err)
 
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-        })
-        .finally(() => {
-          setLoading(false)
-        })
+    } finally {
+
+      setLoading(false)
+      
+    }
   }
 
 
