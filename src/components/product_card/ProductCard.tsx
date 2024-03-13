@@ -8,10 +8,8 @@ type PropsTypes = {
 const ProductCard = ({ product }: PropsTypes) => {
 
   const [loading, setLoading] = useState(false)
-  const baseUrl = import.meta.env.DEV ? import.meta.env.VITE_STORE_BASE_URL_DEV : import.meta.env.VITE_STORE_BASE_URL_DEV
-  const ck = import.meta.env.DEV ? import.meta.env.VITE_WOO_CONSUMER_KEY : import.meta.env.VITE_WOO_CONSUMER_KEY
-  const cs = import.meta.env.DEV ? import.meta.env.VITE_WOO_SECRET_KEY : import.meta.env.VITE_WOO_SECRET_KEY
-  const apiUrl = import.meta.env.DEV ? "http://localhost:8080/api/new-order" : "https://onprintpos.diegoui.com.ar/api/new-order"
+
+  const url = import.meta.env.DEV ? "http://localhost:8080/api/new-order" : "https://onprintpos.diegoui.com.ar/api/new-order"
 
 
   const handleAdd = async (id: Product["id"]) => {
@@ -19,83 +17,23 @@ const ProductCard = ({ product }: PropsTypes) => {
 
     setLoading(true)
 
-    //CREATE WOO ORDER
-    const url = `${baseUrl}orders`
-    const auth = btoa(`${ck}:${cs}`)
-
-    const data = {
-      payment_method: 'bacs',
-      payment_method_title: 'Direct Bank Transfer',
-      set_paid: true,
-      billing: {
-        first_name: 'John',
-        last_name: 'Doe',
-        address_1: '969 Market',
-        address_2: '',
-        city: 'San Francisco',
-        state: 'CA',
-        postcode: '94103',
-        country: 'US',
-        email: 'john.doe@example.com',
-        phone: '(555) 555-5555',
-      },
-      shipping: {
-        first_name: 'Takeaway',
-        last_name: 'Doe',
-        address_1: '969 Market',
-        address_2: '',
-        city: 'San Francisco',
-        state: 'CA',
-        postcode: '94103',
-        country: 'US',
-      },
-      line_items: [
-        {
-          product_id: id,
-          quantity: 1,
-        },
-      ],
-      shipping_lines: [
-        {
-          method_id: 'flat_rate',
-          method_title: 'Flat Rate',
-          total: '10.00',
-        },
-      ],
-    };
-
     try {
 
-      const wooResponse = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Basic ${auth}`,
-        },
-        body: JSON.stringify(data),
-      })
+      const data = { id: id }
 
-      const result = await wooResponse.json()
-
-      console.log("WOO REPSPONE....", result)
-
-      const apiPostData = {
-        products: [
-          { id: 1, name: "Product 1", price: 200 },
-          { id: 2, name: "Product 2", price: 220 },
-          { id: 3, name: "Product 3", price: 230 },
-        ]
-      }
-
-      const apiPostOptions = {
+      const options = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(apiPostData)
+        body: JSON.stringify(data)
       }
 
-      const response = await fetch(apiUrl, apiPostOptions)
+      const response = await fetch(url, options)
 
-      console.log("API POST RESULT....", response)
+      // console.log("API POST RESULT....", response)
+
+      if (!response.ok) {
+        throw new Error("Ocurrió un error creando una nueva orden")
+      }
 
 
     } catch (err) {
@@ -105,7 +43,7 @@ const ProductCard = ({ product }: PropsTypes) => {
     } finally {
 
       setLoading(false)
-      
+
     }
   }
 
