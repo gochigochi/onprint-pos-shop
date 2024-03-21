@@ -2,15 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+  .primary-button {
+    @apply bg-green-500 hover:bg-green-600 py-4 px-2 rounded-lg transition-colors flex justify-center;
+  }
+
+  .ghost-button {
+    @apply bg-zinc-300 hover:bg-zinc-400 py-4 rounded-lg transition-colors;
+  }
+
+  .section-title {
+    @apply text-xl font-semibold;
+  }
+}
+
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
+  
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;

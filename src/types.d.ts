@@ -10,3 +10,10 @@ type ProductImage = {
     src: string
     alt: string
 }
+
+export type CartProduct = Product & { qty: number }
+
+export type Cart = { 
+    products: CartProduct[] 
+    total: string
+}

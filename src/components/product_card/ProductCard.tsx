@@ -19,7 +19,7 @@ const ProductCard = ({ product }: PropsTypes) => {
 
     try {
 
-      const data = { id: id }
+      const data = { products: [], isStore: false }
 
       const options = {
         method: 'POST',
